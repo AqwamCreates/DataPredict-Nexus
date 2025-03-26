@@ -6,6 +6,8 @@ local MemoryStoreService = game:GetService("MemoryStoreService")
 local DataPredictLibraryLinker = script.DataPredictLibraryLinker.Value
 local TensorL2DLibraryLinker = script.TensorL2DLibraryLinker.Value
 
+local defaultPort = 4444
+
 local defaultSyncTime = 3 * 60
 
 local logTypeArray = {"Error", "Warning"}
@@ -20,83 +22,69 @@ function DataPredictNexus.new(propertyTable: {})
 	
 	local instanceId: any = propertyTable.instanceId
 	
+	local existingInstance = DataPredictNexusInstancesArray[instanceId]
+
+	if existingInstance then return existingInstance end
+	
 	local address: string = propertyTable.address
+	
+	local port: string = propertyTable.port or defaultPort
 	
 	local apiKey: string = propertyTable.apiKey
 	
 	local encryptionKey: string = propertyTable.encryptionKey
 	
-	local syncTime: number = propertyTable.syncTime
-	
-	local existingInstance = DataPredictNexusInstancesArray[instanceId]
-	
-	if existingInstance then return existingInstance end
+	local syncTime: number = propertyTable.syncTime or defaultSyncTime
 	
 	if (not encryptionKey) then warn("Without an encryption key, the data will not be encrypted. This means that the hackers can intercept the unencrypted data.") end
-	
-	local self = {
-		
-		instanceId = instanceId,
-		
-		address = address,
-		
-		apiKey = apiKey,
-		
-		encryptionKey = encryptionKey,
-		
-		syncTime = syncTime,
-		
-		logArray = {},
-		
-		syncThread = nil,
-		
-	}
+
+	local logArray = {}
+
+	local syncThread = nil
 	
 	local function addLog(logType, logMessage)
 		
 		if (not table.find(logTypeArray, logType)) then error("Invalid log type.") end
 		
-		table.insert(self.logArray, {logType, logMessage})
+		table.insert(logArray, {logType, logMessage})
 		
 	end
 	
 	local function deleteLog(position)
 		
-		table.remove(self.logArray, position)
+		table.remove(logArray, position)
 		
 	end
 	
 	local function clearAllLogs()
 		
-		table.clear(self.logArray)
+		table.clear(logArray)
 		
 	end
 	
 	local function onSync()
 		
-		local address = self.address
+		local addressWithPort = address .. ":" .. port
 		
 		local requestDictionary = {
 			
-			apiKey = self.apiKey,
+			apiKey = apiKey,
 			
 		}
 		
 		local requestBody = HttpService:JSONEncode(requestDictionary)
 		
-		local success, response = pcall(function() return HttpService:PostAsync(address, requestBody, Enum.HttpContentType.ApplicationJson) end)
+		local success, response = pcall(function() return HttpService:PostAsync(addressWithPort, requestBody, Enum.HttpContentType.ApplicationJson) end)
 
-		if (not success) then addLog("Error", "Unable to fetch response from " .. address .. ".") return end
+		if (not success) then addLog("Error", "Unable to fetch response from " .. addressWithPort .. ".") return end
 		
 	end
 	
 	local function startSync()
 		
-		if (self.syncThread) then error("Already syncing.") end
+		if (syncThread) then error("Already syncing.") end
 		
-		local syncTime = self.syncTime
-		
-		self.syncThread = task.spawn(function()
+		syncThread = task.spawn(function()
 			
 			while true do
 				
@@ -112,13 +100,11 @@ function DataPredictNexus.new(propertyTable: {})
 	
 	local function stopSync()
 		
-		local syncThread = self.syncThread
-		
 		if (not syncThread) then error("Currently not syncing.") end
 		
 		task.cancel(syncThread)
 		
-		self.syncThread = nil
+		syncThread = nil
 		
 	end
 	
@@ -130,7 +116,6 @@ function DataPredictNexus.new(propertyTable: {})
 		
 		startSync = startSync,
 		stopSync = stopSync
-			
 		
 	}
 	
