@@ -62,6 +62,12 @@ function DataPredictNexus.new(propertyTable: {})
 		
 	end
 	
+	local function onSucessfulSync(responseBody)
+		
+		
+		
+	end
+	
 	local function onSync()
 		
 		local addressWithPort = address .. ":" .. port
@@ -74,9 +80,11 @@ function DataPredictNexus.new(propertyTable: {})
 		
 		local requestBody = HttpService:JSONEncode(requestDictionary)
 		
-		local success, response = pcall(function() return HttpService:PostAsync(addressWithPort, requestBody, Enum.HttpContentType.ApplicationJson) end)
+		local success, responseBody = pcall(function() return HttpService:PostAsync(addressWithPort, requestBody, Enum.HttpContentType.ApplicationJson) end)
 
 		if (not success) then addLog("Error", "Unable to fetch response from " .. addressWithPort .. ".") return end
+		
+		onSucessfulSync(responseBody)
 		
 	end
 	
