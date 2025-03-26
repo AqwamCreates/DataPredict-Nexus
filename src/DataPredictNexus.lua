@@ -74,6 +74,8 @@ function DataPredictNexus.new(propertyTable: {})
 	
 	local function onSync()
 		
+		local address = self.address
+		
 		local requestDictionary = {
 			
 			apiKey = self.apiKey,
@@ -82,9 +84,9 @@ function DataPredictNexus.new(propertyTable: {})
 		
 		local requestBody = HttpService:JSONEncode(requestDictionary)
 		
-		local success, response = pcall(function() return HttpService:PostAsync(self.address, requestBody, Enum.HttpContentType.ApplicationJson) end)
+		local success, response = pcall(function() return HttpService:PostAsync(address, requestBody, Enum.HttpContentType.ApplicationJson) end)
 
-		if (not success) then addLog("Error", "Unable to fetch response from " .. self.address .. ".") return end
+		if (not success) then addLog("Error", "Unable to fetch response from " .. address .. ".") return end
 		
 	end
 	
