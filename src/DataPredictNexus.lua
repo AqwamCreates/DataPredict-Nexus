@@ -6,6 +6,9 @@ local MemoryStoreService = game:GetService("MemoryStoreService")
 local DataPredictLibraryLinker = script.DataPredictLibraryLinker.Value
 local TensorL2DLibraryLinker = script.TensorL2DLibraryLinker.Value
 
+local LogStore = DataStoreService:GetDataStore("DataPredictLogStore")
+local CacheStore = MemoryStoreService:GetSortedMap("DataPredictNexusResponseCacheStore")
+
 local defaultPort = 4444
 
 local defaultSyncTime = 3 * 60
@@ -52,13 +55,27 @@ function DataPredictNexus.new(propertyTable: {})
 	
 	local logArray = {}
 
-	local syncThread = nil
+	local isSyncThreadRunning = false
 	
 	local function addLog(logType, logMessage)
 		
 		if (not table.find(logTypeArray, logType)) then error("Invalid log type.") end
 		
-		table.insert(logArray, {logType, logMessage})
+		local currentTime = os.time()
+		
+		local logInfoArray = {currentTime, logType, logMessage}
+		
+		table.insert(logArray, logInfoArray)
+		
+		local success, errorMessage = pcall(function() 
+			
+			local jobIdString = tostring(game.JobId)
+			
+			LogStore:SetAsync(jobIdString, logArray) 
+			
+		end)
+		
+		if (not success) then warn("Failed to save log to DataStore: " .. errorMessage) end
 		
 	end
 	
@@ -144,11 +161,13 @@ function DataPredictNexus.new(propertyTable: {})
 	
 	local function startSync()
 		
-		if (syncThread) then error("Already syncing.") end
+		if (isSyncThreadRunning) then error("Already syncing.") end
 		
-		syncThread = task.spawn(function()
+		isSyncThreadRunning = true
+		
+		task.spawn(function()
 			
-			while true do
+			while isSyncThreadRunning do
 				
 				local responseDictionary = fetchResponseDictionary()
 				
@@ -164,11 +183,9 @@ function DataPredictNexus.new(propertyTable: {})
 	
 	local function stopSync()
 		
-		if (not syncThread) then error("Currently not syncing.") end
+		if (not isSyncThreadRunning) then error("Currently not syncing.") end
 		
-		task.cancel(syncThread)
-		
-		syncThread = nil
+		isSyncThreadRunning = false
 		
 	end
 	
@@ -217,6 +234,12 @@ function DataPredictNexus.new(propertyTable: {})
 		Model:setModelParameters(ModelParameters)
 
 	end
+	
+	game:BindToClose(function()
+		
+		isSyncThreadRunning = false
+		
+	end)
 	
 	commandFunctionArray["replaceModelParameters"] = replaceModelParameters
 	
