@@ -62,6 +62,16 @@ function DataPredictNexus.new(propertyTable: {})
 
 	local isSyncThreadRunning = false
 	
+	local NewDataPredictNexusInstance
+	
+	local function destroy()
+		
+		isSyncThreadRunning = false
+		
+		table.clear(NewDataPredictNexusInstance)
+		
+	end
+	
 	local function addLog(logType, logMessage)
 		
 		if (not table.find(logTypeArray, logType)) then error("Invalid log type.") end
@@ -292,7 +302,9 @@ function DataPredictNexus.new(propertyTable: {})
 	
 	commandFunctionArray["gradientDescent"] = gradientDescent
 	
-	local NewDataPredictNexusInstance = {
+	NewDataPredictNexusInstance = {
+		
+		destroy = destroy,
 
 		addLog = addLog,
 		removeLog = removeLog,
