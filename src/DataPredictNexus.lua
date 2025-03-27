@@ -28,8 +28,6 @@ local DataPredictNexusInstancesArray = {}
 
 local DataPredictNexus = {}
 
-DataPredictNexus.__index = DataPredictNexus
-
 function DataPredictNexus.new(propertyTable: {})
 	
 	local instanceId: any = propertyTable.instanceId
