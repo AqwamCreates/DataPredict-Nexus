@@ -14,7 +14,7 @@ local defaultNumberOfSyncRetry = 3
 
 local defaultSyncRetryDelay = 2
 
-local logTypeArray = {"Error", "Warning"}
+local logTypeArray = {"Normal", "Warning", "Error"}
 
 local DataPredictNexusInstancesArray = {}
 
@@ -48,6 +48,8 @@ function DataPredictNexus.new(propertyTable: {})
 	
 	local commandFunctionArray = {}
 	
+	local modelDataArray = {}
+	
 	local logArray = {}
 
 	local syncThread = nil
@@ -60,7 +62,7 @@ function DataPredictNexus.new(propertyTable: {})
 		
 	end
 	
-	local function deleteLog(position)
+	local function removeLog(position)
 		
 		table.remove(logArray, position)
 		
@@ -72,21 +74,21 @@ function DataPredictNexus.new(propertyTable: {})
 		
 	end
 	
-	local function onCommandReceived(command, value)
+	local function onCommandReceived(command, valueDictionary)
 		
 		local commandFunction = commandFunctionArray[command]
 		
 		if (not commandFunction) then addLog("Warning", "Command function for " .. command .. " does not exist.") return end
 		
-		commandFunction(value)
+		commandFunction(valueDictionary)
 		
 	end
 	
 	local function processResponseDictionary(responseDictionary)
 		
-		for command, value in responseDictionary do
+		for command, valueDictionary in responseDictionary do
 			
-			onCommandReceived(command, value)
+			onCommandReceived(command, valueDictionary)
 			
 		end
 		
@@ -168,17 +170,56 @@ function DataPredictNexus.new(propertyTable: {})
 		
 	end
 	
+	local function addModel(modelName, Model, modelParameterNames)
+		
+		modelDataArray[modelName] = {Model, modelParameterNames}
+		
+	end
+	
+	local function removeModel(modelName)
+		
+		modelDataArray[modelName] = nil
+		
+	end
+	
+	local function replaceModelParameters(valueDictionary)
+		
+		local modelName = valueDictionary.modelName
+		
+		local ModelParameters = valueDictionary.ModelParameters
+		
+		local modelData = modelDataArray[modelName]
+		
+		if (not modelData) then addLog("Error", modelName .. " does not exist when calling the \"replaceModelParameters\" command.") return end
+		
+		if (not ModelParameters) then addLog("Error", modelName .. " model parameters does not exist when calling the \"replaceModelParameters\" command.")  return end
+		
+		local Model = modelData[1]
+		
+		if (not Model) then addLog("Error", modelName .. " model does not exist when calling the \"replaceModelParameters\" command.") return end
+		
+		addLog("Normal", modelName .. " model parameters has been replaced using the \"replaceModelParameters\" command.")
+		
+		Model:setModelParameters(ModelParameters)
+
+	end
+	
+	commandFunctionArray["replaceModelParameters"] = replaceModelParameters
+	
 	return {
 		
 		addLog = addLog,
-		deleteLog = deleteLog,
+		removeLog = removeLog,
 		clearAllLogs = clearAllLogs,
 		
 		startSync = startSync,
 		stopSync = stopSync,
 		
 		addCommand = addCommand,
-		removeCommand = removeCommand
+		removeCommand = removeCommand,
+		
+		addModel = addModel,
+		removeModel = removeModel,
 		
 	}
 	
