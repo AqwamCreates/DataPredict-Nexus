@@ -234,6 +234,12 @@ function DataPredictNexus.new(propertyTable: {})
 		
 	end
 	
+	local function getModel(modelName)
+		
+		return modelDataArray[modelName]
+		
+	end
+	
 	local function replaceModelParameters(valueDictionary)
 		
 		local modelName = valueDictionary.modelName
@@ -256,6 +262,28 @@ function DataPredictNexus.new(propertyTable: {})
 
 	end
 	
+	local function gradientDescent(valueDictionary)
+		
+		local modelName = valueDictionary.modelName
+
+		local GradientDescentParameters = valueDictionary.GradientDescentParameters
+
+		local modelData = modelDataArray[modelName]
+
+		if (not modelData) then addLog("Error", modelName .. " does not exist when calling the \"gradientDescent\" command.") return end
+
+		if (not GradientDescentParameters) then addLog("Error", modelName .. " gradient descent parameters does not exist when calling the \"gradientDescent\" command.")  return end
+
+		local Model = modelData[1]
+
+		if (not Model) then addLog("Error", modelName .. " model does not exist when calling the \"gradientDescent\" command.") return end
+
+		addLog("Normal", modelName .. " model parameters has been updated using the \"gradientDescent\" command.")
+
+		Model:gradientDescent(GradientDescentParameters)
+		
+	end
+	
 	game:BindToClose(function()
 		
 		isSyncThreadRunning = false
@@ -263,6 +291,8 @@ function DataPredictNexus.new(propertyTable: {})
 	end)
 	
 	commandFunctionArray["replaceModelParameters"] = replaceModelParameters
+	
+	commandFunctionArray["gradientDescent"] = gradientDescent
 	
 	return {
 		
@@ -279,6 +309,7 @@ function DataPredictNexus.new(propertyTable: {})
 		
 		addModel = addModel,
 		removeModel = removeModel,
+		getModel = getModel,
 		
 	}
 	
