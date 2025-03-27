@@ -22,8 +22,6 @@ local logTypeArray = {"Normal", "Warning", "Error"}
 
 local responseDictionaryCacheKey = "latestResponse"
 
-local placeId = game.PlaceId
-
 local gameJobId = game.JobId
 
 local DataPredictNexusInstancesArray = {}
