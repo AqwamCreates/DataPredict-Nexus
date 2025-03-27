@@ -7,7 +7,8 @@ local DataPredictLibraryLinker = script.DataPredictLibraryLinker.Value
 local TensorL2DLibraryLinker = script.TensorL2DLibraryLinker.Value
 
 local LogStore = DataStoreService:GetDataStore("DataPredictLogStore")
-local CacheStore = MemoryStoreService:GetSortedMap("DataPredictNexusResponseCacheStore")
+
+local ResponseDictionaryCacheStore = MemoryStoreService:GetSortedMap("DataPredictNexusResponseDictionaryCacheStore")
 
 local defaultPort = 4444
 
@@ -18,6 +19,8 @@ local defaultNumberOfSyncRetry = 3
 local defaultSyncRetryDelay = 2
 
 local logTypeArray = {"Normal", "Warning", "Error"}
+
+local responseDictionaryCacheKey = "latestResponse"
 
 local DataPredictNexusInstancesArray = {}
 
@@ -117,6 +120,10 @@ function DataPredictNexus.new(propertyTable: {})
 	
 	local function fetchResponseDictionary()
 		
+		local cachedResponseDictionary = ResponseDictionaryCacheStore:GetAsync(responseDictionaryCacheKey)
+		
+		if (cachedResponseDictionary) then return cachedResponseDictionary end
+		
 		local addressWithPort = address .. ":" .. port
 		
 		local requestDictionary = {
@@ -138,6 +145,8 @@ function DataPredictNexus.new(propertyTable: {})
 				local decodeSuccess, responseDictionary = pcall(function() return HttpService:JSONDecode(responseBody) end)
 				
 				if (decodeSuccess) then
+					
+					ResponseDictionaryCacheStore:SetAsync(responseDictionaryCacheKey, responseDictionary, 60) -- Cache for 60 seconds
 					
 					return responseDictionary
 					
