@@ -92,6 +92,12 @@ function DataPredictNexus.new(propertyTable: {})
 		
 	end
 	
+	local function getLog()
+		
+		return logArray
+		
+	end
+	
 	local function clearAllLogs()
 		
 		table.clear(logArray)
@@ -262,6 +268,7 @@ function DataPredictNexus.new(propertyTable: {})
 		
 		addLog = addLog,
 		removeLog = removeLog,
+		getLog = getLog,
 		clearAllLogs = clearAllLogs,
 		
 		startSync = startSync,
