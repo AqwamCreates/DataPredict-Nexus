@@ -150,8 +150,6 @@ function DataPredictNexus.new(propertyTable: {})
 		
 		local requestBody = HttpService:JSONEncode(requestDictionary)
 		
-		local currentSyncRetryDelay = syncRetryDelay
-		
 		for attempt = 1, numberOfSyncRetry, 1 do
 			
 			local responseSuccess, responseBody = pcall(function() return HttpService:PostAsync(addressWithPort, requestBody, Enum.HttpContentType.ApplicationJson) end)
@@ -162,7 +160,7 @@ function DataPredictNexus.new(propertyTable: {})
 				
 				if (decodeSuccess) then
 					
-					ResponseDictionaryCacheStore:SetAsync(responseDictionaryCacheKey, responseDictionary, 60) -- Cache for 60 seconds
+					ResponseDictionaryCacheStore:SetAsync(responseDictionaryCacheKey, responseDictionary, 30) -- Cache for 60 seconds
 					
 					return responseDictionary
 					
@@ -176,9 +174,9 @@ function DataPredictNexus.new(propertyTable: {})
 			
 			addLog("Warning", "Sync attempt " .. attempt .. " failed. Retrying in " .. syncRetryDelay .. " seconds.")
 			
-			task.wait(currentSyncRetryDelay)
+			local currentSyncRetryDelay = syncRetryDelay ^ attempt -- Exponential backoff
 			
-			currentSyncRetryDelay = currentSyncRetryDelay * 2 -- Exponential backoff
+			task.wait(currentSyncRetryDelay)
 			
 		end
 		
