@@ -92,7 +92,7 @@ function DataPredictNexus.new(propertyTable: {})
 		
 	end
 	
-	local function getLog()
+	local function getLogArray()
 		
 		return logArray
 		
@@ -268,7 +268,7 @@ function DataPredictNexus.new(propertyTable: {})
 		
 		addLog = addLog,
 		removeLog = removeLog,
-		getLog = getLog,
+		getLogArray = getLogArray,
 		clearAllLogs = clearAllLogs,
 		
 		startSync = startSync,
