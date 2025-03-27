@@ -22,6 +22,10 @@ local logTypeArray = {"Normal", "Warning", "Error"}
 
 local responseDictionaryCacheKey = "latestResponse"
 
+local placeId = game.PlaceId
+
+local gameJobId = game.JobId
+
 local DataPredictNexusInstancesArray = {}
 
 local DataPredictNexus = {}
@@ -49,8 +53,6 @@ function DataPredictNexus.new(propertyTable: {})
 	local numberOfSyncRetry = propertyTable.numberOfSyncRetry or defaultNumberOfSyncRetry
 	
 	local syncRetryDelay = propertyTable.syncRetryDelay or defaultSyncRetryDelay
-	
-	local gameJobId = game.JobId
 	
 	if (not encryptionKey) then warn("Without an encryption key, the data will not be encrypted. This means that the hackers can intercept the unencrypted data.") end
 	
