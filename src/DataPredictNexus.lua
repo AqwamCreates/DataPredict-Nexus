@@ -70,6 +70,8 @@ function DataPredictNexus.new(propertyTable: {})
 		
 		table.clear(NewDataPredictNexusInstance)
 		
+		NewDataPredictNexusInstance = nil
+		
 	end
 	
 	local function addLog(logType, logMessage)
