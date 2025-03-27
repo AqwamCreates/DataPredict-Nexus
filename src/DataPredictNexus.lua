@@ -110,9 +110,23 @@ function DataPredictNexus.new(propertyTable: {})
 		
 		for attempt = 1, numberOfSyncRetry, 1 do
 			
-			local success, responseBody = pcall(function() return HttpService:PostAsync(addressWithPort, requestBody, Enum.HttpContentType.ApplicationJson) end)
+			local responseSuccess, responseBody = pcall(function() return HttpService:PostAsync(addressWithPort, requestBody, Enum.HttpContentType.ApplicationJson) end)
 			
-			if success then return HttpService:JSONDecode(responseBody) end
+			if (responseSuccess) then
+				
+				local decodeSuccess, responseDictionary = pcall(function() return HttpService:JSONDecode(responseBody) end)
+				
+				if (decodeSuccess) then
+					
+					return responseDictionary
+					
+				else
+					
+					addLog("Error", "Failed to decode ML response: " .. responseBody)
+					
+				end
+				
+			end
 			
 			addLog("Warning", "Sync attempt " .. attempt .. " failed. Retrying in " .. syncRetryDelay .. " seconds.")
 			
