@@ -292,24 +292,26 @@ function DataPredictNexus.new(propertyTable: {})
 	
 	commandFunctionArray["gradientDescent"] = gradientDescent
 	
-	return {
-		
+	local NewDataPredictInstance = {
+
 		addLog = addLog,
 		removeLog = removeLog,
 		getLogArray = getLogArray,
 		clearAllLogs = clearAllLogs,
-		
+
 		startSync = startSync,
 		stopSync = stopSync,
-		
+
 		addCommand = addCommand,
 		removeCommand = removeCommand,
-		
+
 		addModel = addModel,
 		removeModel = removeModel,
 		getModel = getModel,
-		
+
 	}
+	
+	return NewDataPredictInstance
 	
 end
 
