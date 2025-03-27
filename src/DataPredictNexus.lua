@@ -46,9 +46,9 @@ function DataPredictNexus.new(propertyTable: {})
 	
 	local syncTime: number = propertyTable.syncTime or defaultSyncTime
 	
-	local numberOfSyncRetry = propertyTable.numberOfSyncRetry or defaultNumberOfSyncRetry
+	local numberOfSyncRetry: number = propertyTable.numberOfSyncRetry or defaultNumberOfSyncRetry
 	
-	local syncRetryDelay = propertyTable.syncRetryDelay or defaultSyncRetryDelay
+	local syncRetryDelay: number = propertyTable.syncRetryDelay or defaultSyncRetryDelay
 	
 	if (not encryptionKey) then warn("Without an encryption key, the data will not be encrypted. This means that the hackers can intercept the unencrypted data.") end
 	
