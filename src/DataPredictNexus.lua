@@ -97,9 +97,11 @@ function DataPredictNexus.new(propertyTable: {})
 		
 		local commandFunction = commandFunctionArray[command]
 		
-		if (not commandFunction) then addLog("Warning", "Command function for " .. command .. " does not exist.") return end
+		if (not commandFunction) then addLog("Error", "Command function for " .. command .. " does not exist.") return end
 		
-		commandFunction(valueDictionary)
+		local commandSuccess = pcall(commandFunction, valueDictionary)
+		
+		if (not commandSuccess) then addLog("Error", "Unable to run " .. command .. " command.") end
 		
 	end
 	
