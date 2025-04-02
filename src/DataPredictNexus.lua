@@ -67,6 +67,34 @@ function DataPredictNexus.new(propertyTable: {})
 		isSyncThreadRunning = false
 		
 		table.clear(NewDataPredictNexusInstance)
+
+		------------------------------------------------
+		
+		instanceId = nil
+
+		existingInstance = nil
+
+		address = nil
+
+		port = nil
+
+		apiKey = nil
+
+		encryptionKey = nil
+
+		syncTime = nil
+
+		numberOfSyncRetry = nil
+
+		syncRetryDelay = nil
+
+		commandFunctionArray = nil
+
+		modelDataArray = nil
+
+		logArray = nil
+		
+		------------------------------------------------
 		
 		NewDataPredictNexusInstance = nil
 		
